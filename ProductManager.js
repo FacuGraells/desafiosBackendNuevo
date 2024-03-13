@@ -22,7 +22,7 @@ class ProductManager{
             return `El codigo ${code} ya esta registrado`;
 
             ProductManager.idProducto = ProductManager.idProducto + 1;
-            const id = ProductManager.idProducto + 1;
+            const id = ProductManager.idProducto;
             const  newProduct = {
                 id: id ,
                 title : title,
