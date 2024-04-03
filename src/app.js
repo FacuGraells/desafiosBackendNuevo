@@ -1,23 +1,20 @@
 import { Express } from "express";
-import ProductManager from "./data/ProductManager.js";
-
+import products from "./routers/products.js"
+import carts from "./routers/cart.js"
 
 const app = express();
 const PORT = 8080;
 
-app.get("/products", (req, res) => {
-    const {limit} = req.query;
-    const p = new  ProductManager();
-    return res.json({productos: p.getProducts(limit) });
+app.use(express.json());
+app.use(express.urlencoded({extended: true }));
+
+app.get("/", (req, res) => {
+    return  res.status(200).send("bienvenido a la API")
 });
 
 
-app.get("/produts/:id",(req, res)=>{
-    const {pid} = req.params;
-    const p = new ProductManager();
-    const  producto = p.getProductById(Number(pid));
-    return res.json({producto});
-})
+app.use("/api/products", products);
+app.use("/api/carts", carts);
 
 
 app.listen(PORT, () => {

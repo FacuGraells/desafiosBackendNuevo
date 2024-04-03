@@ -43,31 +43,50 @@ class ProductManager{
 
     }
 
-    addProduct(title, description ,price, thumbnail, code ,stock){
+    addProduct(title, description ,price, thumbnails=[], code ,stock, category, status = true){
         
-        if(!title || !description || !price || !thumbnail || !code || !stock)
-            return "todos los parametros  son obligatorios [title, description ,price, thumbnail, code ,stock]";
+        let result = "ocurrio un error";
 
-        const codigoRepetido = this.#products.some(p => p.code ==  code);
+        if(!title || !description || !price  || !code || !stock || !category)
+            
+            result = "todos los parametros  son obligatorios [title, description ,price, code ,stock, category]";
+
+        else{
+
+            const codigoRepetido = this.#products.some(p => p.code ==  code);
 
         if (codigoRepetido) 
-            return `El codigo ${code} ya esta registrado`;
-
+            
+            result = `El codigo ${code} ya esta registrado`;
+        
+        else {
+            
             ProductManager.idProducto = ProductManager.idProducto + 1;
             const id = this.#asignarIdProduct();
             const  newProduct = {
-                id: id ,
-                title : title,
-                price : price,
-                description : description,
-                thumbnail : thumbnail,
-                code : code,
-                stock : stock
+                id ,
+                title,
+                price,
+                description,
+                thumbnails,
+                code,
+                stock,
+                category,
+                status
             }
             this.#products.push(newProduct);
             this.#guardarArchivo();
+            result = {
+                msg  : "producto agregado correct",
+                producto : newProduct
+            };
+        }
 
-            return "El producto se agrego con exito!";
+            
+    }
+        
+
+            return result;
 
     }
 
@@ -82,27 +101,41 @@ class ProductManager{
     
 
     getProductById(id){
+        let status = false
+        let resp = `el producto con id ${id} no existe`;
        const producto = this.#products.find(p => p.id == id);
-       if(producto) 
-        return producto;
-       else
-        return "no se encontro el producto con ese id"
+       if(producto) {
+        status = true;
+        resp = producto
+       }
+        
+       return {status , resp};
     }
 
 
     updateProduct(id, updateObject){
-        let msg = `El producto con id ${id} no existe`;
+        let result = `El producto con id ${id} no existe`;
 
         const index = this.#products.findIndex(p=> p.id === id );
         
         if(index !== -1 ){
             const {id, ...rest} = updateObject;
-            this.#products[index] = {...this.#products [index], ...rest};
+            const propPermitidas = ["title", "description", "price", "code" ,"stock", "category"]
+            const propActualizadas = Object.keys(rest)
+            .filter(propiedad => propPermitidas.includes(propiedad))
+            .reduce((obj,key,) =>{
+                obj[key] = rest[key];
+                return obj;
+            }, {});
+            this.#products[index] = {...this.#products [index], ...propActualizadas};
             this.#guardarArchivo();
-            msg = "producto actualizado";
+            result = {
+                msg:"producto actualizado",
+                producto:this.#products[index]
+            } ;
         }
 
-        return msg;
+        return result;
     }
 
     deleteProduct(id){
@@ -123,4 +156,4 @@ class ProductManager{
 
 //module.exports = ProductManager;
 
-export default ProductManager
+export default ProductManager;
